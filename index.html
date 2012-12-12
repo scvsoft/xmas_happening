@@ -2,108 +2,24 @@
 <html>
 <head>
     <title>crimildjs</title>
-    <script type="text/javascript" src="../js/jquery-1.8.2.min.js"></script>
-    <script data-main="../src/crimild" src="../lib/require.js"></script>
-    <link rel="stylesheet" type="text/css" href="../css/example.css">
+    <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
+    <script data-main="/src/crimild" src="/lib/require.js"></script>
+    <script type="text/javascript" src="/domain/xmas.ball.js"></script>
+    <script type="text/javascript" src="/domain/xmas.tree.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/xmastree.css">
     <script type="text/javascript">
-        function initCrimild(canvasId) {
-            require(["crimild"], function(crimild) {
-                var assetManager = crimild.utils.assetManager();
-                assetManager.queueImage("../assets/crate.gif");
-                assetManager.loadAll(function() {
-                    var canvas = document.getElementById(canvasId);
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-
-                    var scene = crimild.core.groupNode({
-                        name: "scene",
-                        nodes: [
-                            crimild.core.geometryNode({
-                                name: "a cube",
-                                primitives: [
-                                    crimild.primitives.cubePrimitive()
-                                ],
-                                local: crimild.math.transformation({
-                                    translate: [0, 0, 0]
-                                }),
-                                components: [
-                                    crimild.components.rotationComponent({angle: 0.01, axis: [0.5, 0, 1]}),
-                                ]
-                            }),
-                            crimild.rendering.cameraNode({
-                                aspectRatio: canvas.width / canvas.height,
-                                local: crimild.math.transformation({
-                                    translate: [0, 0, 5]
-                                }),
-                            })
-                        ],
-                        components: [
-                            crimild.rendering.renderComponent({
-                                effects: [
-                                    crimild.rendering.effect({
-                                        textures: [
-                                            crimild.rendering.texture({
-                                                image: assetManager.getImage("../assets/crate.gif")
-                                            })
-                                        ]
-                                    })
-                                ]
-                            })
-                        ]
-                    });
-
-                    crimild.simulation.run({canvas: canvas, scenes: [scene]});
-    
-                    $('#loading').hide();
-                    $('#wrapper').show();
-                })
-            });
-        }
-    </script>
-    <style type="text/css">
-    	#overlay {
-    		margin: auto;
-    		text-align: center;
-    		vertical-align: middle;
-    		font: 2em sans-serif bold;
-    		color: white;
-    		background-color: black;
-    		height: 100%;
-    		width: 100%;
-    		z-index: 10000;
-    		position: absolute;
-    	}
-    	#overlay p {
-    		position: relative;
-    		top: 50%;
-    	}
-    	#overlay iframe {
-    		width: 100%;
-    		height: 100%;
-    	}
-    </style>
-    <script>
-		var overlay_visible = false;
-		function loop(){
-			if (overlay_visible) {
-				overlay_visible=false;
-			    $('#overlay').delay(1000).fadeOut(1000,function(){
-			        loop();
-			    });
-			} else {
-				overlay_visible=true;
-			    $('#overlay').delay(1000).fadeIn(1000,function(){
-			        loop();
-			    });				
-			}
-		}
     	$(document).ready(function(){
-    		loop();
+    		window.XmasTree = new XmasTree();
+    		window.XmasTree.addBall(new XmasBall("http://www.scvsoft.com"));
+    		window.XmasTree.addBall(new XmasBall("http://jquery.com/"));
+    		window.XmasTree.addBall(new XmasBall("http://www.ideasagiles.com/"));
+    		window.XmasTree.addBall(new XmasBall("http://www.requirejs.org"));
+    		window.XmasTree.render();
     	});
     </script>
 </head>
 
-<body onload="initCrimild('webGLCanvas');">
+<body>
     <div id="loading">
         <div class="hud">
             <p>loading, please wait...</p>
@@ -112,7 +28,7 @@
 
     <div id="wrapper" style="display: none;">
     	<div id="overlay">
-    		<iframe src="http://www.lanacion.com.ar"></iframe>
+    		<iframe src=""></iframe>
     	</div>
         <canvas id="webGLCanvas">
             Your browser does not support WebGL
