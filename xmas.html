@@ -1,0 +1,549 @@
+<!doctype html>
+<html>
+<head>
+    <title>crimildjs</title>
+    <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+    <script data-main="lib/crimild" src="lib/require.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/example.css">
+    <script id="glow-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec3 aVertexNormal;
+        attribute vec2 aTextureCoord;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        uniform mat3 uNMatrix;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec3 vNormal;
+        varying vec3 vViewVector;
+
+        void main(void) {
+            vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+            vViewVector = normalize(-vPosition.xyz);
+            vTextureCoord = aTextureCoord;
+            vNormal = uNMatrix * aVertexNormal;
+
+            gl_Position = uPMatrix * vPosition;
+        }
+    </script>
+    <script id="glow-fs" type="x-shader/x-fragment">
+        precision highp float;
+
+        uniform bool uUseTextures;
+        uniform sampler2D uSampler;
+        uniform bool uUseBloom;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec3 vNormal;
+        varying vec3 vViewVector;
+
+        float Gaussian(float x, float deviation) {
+            return (1.0 / sqrt(2.0 * 3.141592 * deviation)) * exp(-((x * x) / (2.0 * deviation)));
+        }
+
+        void main(void) {
+            if (uUseBloom) {
+                float pi = 3.141592;
+                float sigma = 4.0;
+                float blurSize = 0.005;
+                vec2 blurMultiplyVec = vec2(1.0, 0.0);
+
+                vec3 incrementalGaussian;
+                incrementalGaussian.x = 1.0 / (sqrt(2.0 * pi) * sigma);
+                incrementalGaussian.y = exp(-0.5 / (sigma * sigma));
+                incrementalGaussian.z = incrementalGaussian.y * incrementalGaussian.y;
+
+                vec4 avgValue = vec4(0.0, 0.0, 0.0, 0.0);
+                float coefficientSum = 0.0;
+
+                avgValue += texture2D(uSampler, vTextureCoord) * incrementalGaussian.x;
+                coefficientSum += incrementalGaussian.x;
+                incrementalGaussian.xy *= incrementalGaussian.yz;
+
+                for (float i = 1.0; i <= 4.0; i++) {
+                    avgValue += texture2D(uSampler, vTextureCoord - i * blurSize * blurMultiplyVec) * incrementalGaussian.x;
+                    avgValue += texture2D(uSampler, vTextureCoord + i * blurSize * blurMultiplyVec) * incrementalGaussian.x;
+                    coefficientSum += 2.0 * incrementalGaussian.x;
+                    incrementalGaussian.xy *= incrementalGaussian.yz;
+                }
+
+                gl_FragColor = avgValue / coefficientSum + texture2D(uSampler, vTextureCoord);
+            }
+            else {
+                gl_FragColor = texture2D(uSampler, vTextureCoord);   
+            }
+        }
+    </script>
+    <script id="floor-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec3 aVertexNormal;
+        attribute vec2 aTextureCoord;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        uniform mat3 uNMatrix;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec3 vNormal;
+        varying vec3 vViewVector;
+
+        void main(void) {
+            vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+            vViewVector = normalize(-vPosition.xyz);
+            vTextureCoord = aTextureCoord;
+            vNormal = uNMatrix * aVertexNormal;
+
+            gl_Position = uPMatrix * vPosition;
+        }
+    </script>
+    <script id="floor-fs" type="x-shader/x-fragment">
+        precision highp float;
+
+        uniform bool uUseTextures;
+        uniform sampler2D uSampler;
+
+        varying vec2 vTextureCoord;
+
+        void main(void) {
+            gl_FragColor = texture2D(uSampler, vTextureCoord);   
+        }
+    </script>
+    <script type="text/javascript">
+        function initCrimild(canvasId) {
+            require(["crimild"], function(crimild) {
+                var canvas = document.getElementById(canvasId);
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                var assetManager = crimild.utils.assetManager();
+                assetManager.queueImage("assets/floor_tile.png");
+                assetManager.queueImage("assets/blob.png");
+                assetManager.loadAll(function() {
+                    var enablePostprocessing = false;
+                    if (!enablePostprocessing) {
+                        $('.hud').hide();
+                    }
+
+                    var offscreenFramebuffer = crimild.rendering.framebuffer({
+                        width: 1024,
+                        height: 1024,
+                        clearColor: [0.0, 0.0, 0.0, 0.0]
+                    });
+
+                    var balls = [
+                        { position: [0, 12.5, 0] },
+                        { position: [2, 4, 0] },
+                        { position: [0, 2, 3] },
+                        { position: [-4, 0, 0] },
+                        { position: [5, -5, 0] },
+                        { position: [0, -7, 7] },
+                        { position: [2, -3, -4] },
+                        { position: [-7, -9.5, 0] },
+                        { position: [0, -12, -7] },
+                        { position: [6, -13, -5] },
+                    ];
+
+                    var ballGroup = crimild.core.groupNode();
+
+                    for (var b in balls) {
+                        var ballData = balls[b];
+
+                        ballGroup.attachNode(crimild.core.geometryNode({
+                            primitives: [
+                                crimild.primitives.spherePrimitive({
+                                    type: crimild.core.primitive.types.TRIANGLES,
+                                    vertexFormat: crimild.core.vertexFormat({normals: 3}),
+                                    radius: 1,
+                                })
+                            ],
+                            local: crimild.math.transformation({
+                                translate: ballData.position,
+                            })
+                        }));
+                    };
+
+                    var mainCameraDefaultOrientation = crimild.math.transformation({
+                        translate: vec3.create([-10, 10, 45.0]),
+                        rotate: quat4.fromAngleAxis(-0.2, [1, 0, 0]),
+                    });
+
+                    var mainCamera = crimild.rendering.cameraNode({
+                        viewport: [0.0, 0, 1, (canvas.height - 80) / canvas.height],
+                        aspectRatio: canvas.width / canvas.height,
+                        local: crimild.math.transformation({
+                            translate: mainCameraDefaultOrientation.translate,
+                            rotate: mainCameraDefaultOrientation.rotate, 
+                        }),
+                        target: enablePostprocessing ? offscreenFramebuffer : null
+                    });
+
+                    var offscreenScene = crimild.core.groupNode({
+                        nodes: [
+                            crimild.core.groupNode({
+                                nodes: [
+                                    crimild.core.groupNode({
+                                        nodes: [
+                                            crimild.core.geometryNode({
+                                                primitives: [
+                                                    crimild.primitives.spiralPrimitive({
+                                                        type: crimild.core.primitive.types.TRIANGLES,
+                                                        vertexFormat: crimild.core.vertexFormat({normals: 3}),
+                                                        height: 25.0,
+                                                        radius: 10.0,
+                                                        divisions: vec3.createFrom(200.0, 2.0),
+                                                        upperBound: vec3.createFrom(12.0 * Math.PI, 1.0),
+                                                    }),
+                                                ],
+                                            }),
+                                            ballGroup,
+                                        ],
+                                        components: [
+                                            crimild.rendering.renderComponent({
+                                                effects: [
+                                                    crimild.rendering.effect({
+                                                        cullState: crimild.rendering.cullState({ enabled: false }),
+                                                    })
+                                                ]
+                                            })
+                                        ]
+                                    }),
+                                    crimild.core.groupNode({
+                                        nodes: [
+                                            crimild.core.geometryNode({
+                                                primitives: [
+                                                    crimild.core.primitive({
+                                                        type: crimild.core.primitive.types.TRIANGLES,
+                                                        vertexBuffer: crimild.core.vertexBufferObject({
+                                                            vertexFormat: crimild.core.vertexFormat({
+                                                                positions: 3,
+                                                                normals: 3,
+                                                                textureCoords: 2,
+                                                            }),
+                                                            vertexCount: 4,
+                                                            data: new Float32Array([
+                                                                -1000.0, 0.0, -1000.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                                                -1000.0, 0.0, 1000.0, 0.0, 1.0, 0.0, 0.0, 80.0,
+                                                                1000.0, 0.0, 1000.0, 0.0, 1.0, 0.0, 80.0, 80.0,
+                                                                1000.0, 0.0, -1000.0, 0.0, 1.0, 0.0, 80.0, 0.0,
+                                                            ]),
+                                                        }),
+                                                        indexBuffer: crimild.core.indexBufferObject({
+                                                            indexCount: 6,
+                                                            data: new Uint16Array([
+                                                                0, 1, 2,
+                                                                0, 2, 3,
+                                                            ]),
+                                                        })
+                                                    })
+                                                ],
+                                                components: [
+                                                    crimild.rendering.renderComponent({
+                                                        effects: [
+                                                            crimild.rendering.effect({
+                                                                cullState: crimild.rendering.cullState({ enabled: false }),
+                                                                shaderProgram: crimild.rendering.shaderProgram({
+                                                                    vertexShader: crimild.rendering.shader({
+                                                                        scriptId: "floor-vs"
+                                                                    }),
+                                                                    fragmentShader: crimild.rendering.shader({
+                                                                        scriptId: "floor-fs"
+                                                                    }),
+                                                                }),
+                                                                textures: [
+                                                                    crimild.rendering.texture({
+                                                                        image: assetManager.getImage("assets/floor_tile.png"),
+                                                                    })
+                                                                ]
+                                                            })
+                                                        ]
+                                                    })
+                                                ]
+                                            }),
+                                            crimild.core.geometryNode({
+                                                primitives: [
+                                                    crimild.core.primitive({
+                                                        type: crimild.core.primitive.types.TRIANGLES,
+                                                        vertexBuffer: crimild.core.vertexBufferObject({
+                                                            vertexFormat: crimild.core.vertexFormat({
+                                                                positions: 3,
+                                                                normals: 3,
+                                                                textureCoords: 2,
+                                                            }),
+                                                            vertexCount: 4,
+                                                            data: new Float32Array([
+                                                                -10.0, 0.0, -10.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                                                -10.0, 0.0, 10.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                                                                10.0, 0.0, 10.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+                                                                10.0, 0.0, -10.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+                                                            ]),
+                                                        }),
+                                                        indexBuffer: crimild.core.indexBufferObject({
+                                                            indexCount: 6,
+                                                            data: new Uint16Array([
+                                                                0, 1, 2,
+                                                                0, 2, 3,
+                                                            ]),
+                                                        })
+                                                    })
+                                                ],
+                                                components: [
+                                                    crimild.rendering.renderComponent({
+                                                        effects: [
+                                                            crimild.rendering.effect({
+                                                                cullState: crimild.rendering.cullState({ enabled: false }),
+                                                                alphaState: crimild.rendering.alphaState({ enabled: true }),
+                                                                shaderProgram: crimild.rendering.shaderProgram({
+                                                                    vertexShader: crimild.rendering.shader({
+                                                                        scriptId: "floor-vs"
+                                                                    }),
+                                                                    fragmentShader: crimild.rendering.shader({
+                                                                        scriptId: "floor-fs"
+                                                                    }),
+                                                                }),
+                                                                textures: [
+                                                                    crimild.rendering.texture({
+                                                                        image: assetManager.getImage("assets/blob.png"),
+                                                                    })
+                                                                ]
+                                                            })
+                                                        ]
+                                                    })
+                                                ],
+                                                local: crimild.math.transformation({
+                                                    translate: [0, 1, 0],
+                                                }),
+                                            }),
+                                        ],
+                                        local: crimild.math.transformation({
+                                            translate: [0, -15, 0],
+                                            rotate: quat4.fromAngleAxis(-0.2, [0, 1, 0]),
+                                        }),
+                                    })
+                                ],
+                            }),
+                            crimild.core.node({
+                                components: [
+                                    crimild.rendering.lightingComponent({
+                                        lights: [
+                                            crimild.rendering.light({
+                                                color: [0.75, 0.75, 1.0],
+                                            })
+                                        ]
+                                    })
+                                ],
+                                local: crimild.math.transformation({
+                                    translate: [-50.0, 5.0, 50.0]
+                                })
+                            }),
+                            mainCamera,
+                        ],
+                        local: crimild.math.transformation({
+                            translate: [0, 0, 1000]
+                        }),
+                    });
+
+                    var scene = crimild.core.groupNode({
+                        nodes: [
+                            crimild.core.geometryNode({
+                                primitives: [
+                                    crimild.core.primitive({
+                                        vertexBuffer: crimild.core.vertexBufferObject({
+                                            vertexFormat: crimild.core.vertexFormat({
+                                                positions: 3,
+                                                normals: 3,
+                                                textureCoords: 2
+                                            }),
+                                            vertexCount: 4,
+                                            data: new Float32Array([
+                                                -(canvas.width / canvas.height), 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+                                                -(canvas.width / canvas.height), -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                                                (canvas.width / canvas.height), -1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+                                                (canvas.width / canvas.height), 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+                                            ])
+                                        }),
+                                        indexBuffer: crimild.core.indexBufferObject({
+                                            indexCount: 6,
+                                            data: new Uint16Array([
+                                                0, 1, 2,
+                                                0, 2, 3
+                                            ])
+                                        })
+                                    }),
+                                ],                            
+                                components: [
+                                    crimild.rendering.renderComponent({
+                                        effects: [
+                                            crimild.rendering.effect({
+                                                shaderProgram: crimild.rendering.shaderProgram({
+                                                    vertexShader: crimild.rendering.shader({
+                                                        scriptId: "glow-vs"
+                                                    }),
+                                                    fragmentShader: crimild.rendering.shader({
+                                                        scriptId: "glow-fs"
+                                                    })
+                                                }),
+                                                textures: [
+                                                    offscreenFramebuffer.texture,
+                                                ]
+                                            }),
+                                        ]
+                                    }),
+                                ]
+                            }),
+                            crimild.rendering.cameraNode({
+                                viewport: [0, 0, 1.0, 0.9],
+                                aspectRatio: canvas.width / canvas.height,
+                                local: crimild.math.transformation({
+                                    translate: [0, 0, 2.4 * (4.0 / 3.0) / (canvas.width / canvas.height)],
+                                })
+                            }),
+                        ],
+                        components: [
+                            (function() {
+                                var that = crimild.rendering.shaderUniformComponent({
+                                    uniforms: [
+                                        crimild.rendering.shaderUniform({
+                                            name: "uUseBloom",
+                                            data: document.getElementById("bloom").checked,
+                                            type: crimild.rendering.shaderUniform.type.BOOL,
+                                        }),
+                                    ]
+                                });
+
+                                that.update = function() {
+                                    that.getUniform("uUseBloom").data = document.getElementById("bloom").checked;
+                                };
+
+                                return that;
+                            })(),
+                        ],
+                    });
+
+                    var zoomedIn = false;
+
+                    canvas.onmouseup = function(ev) {
+                        var x = event.layerX;
+                        var y = event.layerY;
+                        var width = canvas.width;
+                        var height = canvas.height;
+
+                        var cameraBehavior = function(spec) {
+                            spec = spec || {};
+                            var cmp = crimild.core.nodeComponent({ name: "behavior" });
+
+                            var _t = 0.0;
+                            var _speed = spec.speed || 0.01;
+
+                            cmp.update = function() {
+                                if (_t > 1.0) {
+                                    cmp.node.local.translate = spec.points[spec.points.length - 1];
+                                    cmp.node.perform(crimild.core.worldStateUpdate());
+
+                                    if (spec.callback) {
+                                        spec.callback(that);
+                                    }
+                                    else {
+                                        cmp.node.detachComponent(cmp);
+                                    }
+                                }
+                                else {
+                                    crimild.math.numeric.computeBezier3D(spec.points, _t, cmp.node.local.translate);
+                                    if (spec.orientations) {
+                                        quat4.slerp(spec.orientations[0], spec.orientations[1], Math.min(1, _t), cmp.node.local.rotate);
+                                    }
+                                    cmp.node.perform(crimild.core.worldStateUpdate());
+
+                                    _t += _speed;
+                                }
+
+                            };
+
+                            return cmp;
+                        };
+
+                        if (zoomedIn) {
+                            mainCamera.attachComponent(cameraBehavior({
+                                points: [
+                                    vec3.create(mainCamera.local.translate), 
+                                    [mainCamera.local.translate[0], mainCamera.local.translate[1], mainCameraDefaultOrientation.translate[2]],
+                                    vec3.create(mainCameraDefaultOrientation.translate)
+                                ],
+                                orientations: [
+                                    quat4.fromAngleAxis(0, [0, 1, 0]),
+                                    quat4.create(mainCameraDefaultOrientation.rotate)
+                                ],
+                                speed: 0.025,
+                            }));
+
+                            zoomedIn = false;
+                        }
+                        else {
+                            var origin = vec3.create();
+                            var direction = vec3.create();
+                            var ballPosition = vec3.create();
+
+                            if (mainCamera.get().getPickRay(x, y, width, height, origin, direction)) {
+                                var collisionFound = false;
+
+                                for (var b in balls) {
+                                    var ball = balls[b];
+                                    ballGroup.world.applyToPoint(ball.position, ballPosition);
+                                    if (!collisionFound && crimild.math.testIntersectionSphereRay(ballPosition, 1.0, origin, direction)) {
+                                        collisionFound = true;
+
+                                        mainCamera.attachComponent(cameraBehavior({
+                                            points: [
+                                                vec3.create(mainCamera.local.translate), 
+                                                [ball.position[0], ball.position[1], mainCameraDefaultOrientation.translate[2]],
+                                                vec3.create(ball.position),
+                                            ],
+                                            orientations: [
+                                                quat4.create(mainCameraDefaultOrientation.rotate),
+                                                quat4.fromAngleAxis(0, [0, 1, 0]),
+                                            ],
+                                            speed: 0.005,
+                                        }));
+
+                                        zoomedIn = true;
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    crimild.simulation
+                        .run({canvas: canvas, scenes: [offscreenScene, (enablePostprocessing ? scene : null)]})
+                        .getRenderer().setClearColor([0, 0, 0, 0]);
+
+                    $('#loading').hide();
+                    $('#wrapper').show();
+                });
+            });
+        }
+    </script>
+</head>
+
+<body onload="initCrimild('webGLCanvas');" style="background-image: url('assets/xmas.png'); background-repeat: no-repeat; background-color: white;">
+    <div id="loading">
+        <div class="hud">
+            <p>loading, please wait...</p>
+        </div>
+    </div>
+
+    <div id="wrapper" style="display: none;">
+        <canvas id="webGLCanvas">
+            Your browser does not support WebGL
+        </canvas>
+
+        <div class="hud">
+            <p>SCVSoft XMas Happening</p>
+            <input type="checkbox" id="bloom" checked />Bloom<br/>
+            <p><span id="debug"></span></p>
+        </div>
+    </div>
+</body>
+</html>
