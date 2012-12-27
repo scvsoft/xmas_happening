@@ -6,17 +6,56 @@
     <script data-main="lib/crimild" src="lib/require.js"></script>
     <link rel="stylesheet" type="text/css" href="css/example.css">
     <script type="text/javascript">
+
         var balls = [
-            { position: [0, 12.5, 0], url:'http://scvsoft.github.com/code_happening_2012/' },
-            { position: [2, 4, 0], url:'http://hhsaez.github.com/crimildjs/examples/shapes.html' },
-            { position: [0, 2, 3], url:'http://hhsaez.github.com/crimildjs/projects/singleton/game.html' },
-            { position: [-4, 0, 0] },
-            { position: [5, -5, 0] },
-            { position: [0, -7, 7] },
-            { position: [2, -3, -4] },
-            { position: [-7, -9.5, 0] },
-            { position: [0, -12, -7] },
-            { position: [6, -13, -5] },
+            { position: [0.1970764764970429, 10.75, 0.5931153870972414] }, 
+            { position: [-1.6154607236308878, 8.75, -0.1758170936114261], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-0.9479359160668097, 7.75, -1.90185238623574] },  
+            { position: [1.344224377759832, 6.75, -2.254703045244804] },  
+            { position: [3.1232794319515604, 5.75, -0.10368505171111506] },  
+            { position: [2.0587251281715186, 4.75, 2.9836681864167076] },  
+            { position: [-1.5912102419904148, 3.75, 3.8057423672372783] },  
+            { position: [-3.4161998657751527, 3.25, 2.733167297674592] },  
+            { position: [-4.554538927286372, 2.5, 0.8042388698845052], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-4.619451544392717, 3.25, -1.557656068908584] },  
+            { position: [-3.476768483678457, 2.25, -3.7653294558245767] },  
+            { position: [-1.3067346462655363, 1.25, -5.213738540073647] },  
+            { position: [1.4157542816536186, 0.75, -5.443919986000846] },  
+            { position: [4.023613120503376, 0.25, -4.280906732984624] },  
+            { position: [5.8210214382895, -0.25, -1.9056060492594047] },  
+            { position: [6.267819974928398, -0.05, 1.1640694832734793] },  
+            { position: [5.136266239606533, -0.25, 4.184422793633331] },  
+            { position: [2.5957701762938914, -0.75, 6.366129294309312], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-0.8022307725160778, -0.25, 7.079692845570934] },  
+            { position: [-4.24200610948272, -1.15, 6.03291050547837] },  
+            { position: [-6.839280667979953, -1.75, 3.371181535396113] },  
+            { position: [-5.8680431201029055, -1.25, -0.33094177766087124] },  
+            { position: [-6.960360434859345, -3.0, -4.191540005397139] },  
+            { position: [-4.224875297972147, -4.75, -7.231255334766209] },  
+            { position: [-0.2480173115892393, -5.25, -8.621433315473249] },  
+            { position: [4.029177603783286, -5.75, -7.907676829333074] },  
+            { position: [7.533474796620869, -6.25, -5.149017623651929] },  
+            { position: [9.328578759716052, -6.75, -0.9317957521767016] },  
+            { position: [8.86354671982693, -7.25, 3.752088024746394], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [6.134962727761535, -6.75, 7.738078400286259] },  
+            { position: [4.080820618133919, -7.15, 9.129452507276277] },  
+            { position: [1.7164862802010419, -7, 9.978441754596837] },  
+            { position: [-0.8155265646050357, -7.35, 10.217505391357692], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-3.358488827014559, -7.65, 9.816372945177784] },  
+            { position: [-5.751157232354818, -8.25, 8.78488420462859] },  
+            { position: [-7.8379945156412445, -8.5, 7.1733163162360105], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-9.479261071069235, -9.35, 5.070119283262609] },  
+            { position: [-10.56032442432911, -9.75, 2.5971470988217122] },  
+            { position: [-10.999569090341009, -10, -0.09736440219444265] },  
+            { position: [-9.824677201052051, -10.85, -5.480713265180732] },  
+            { position: [-8.254004969363896, -10.55, -7.827006258188127] },  
+            { position: [-6.127579733834072, -10.2, -9.731534648014462] },  
+            { position: [-3.5678316993058568, -11.45, -11.06395959706236] },  
+            { position: [-0.7273872044344414, -12.25, -11.727463828757907] },  
+            { position: [2.2200150651117574, -11.65, -11.665640064337527] },  
+            { position: [5.090148088043964, -12.1, -10.866940344079486] },  
+            { position: [7.699811274637129, -13.35, -9.36635101493484] },  
+            { position: [9.878516300425119, -12.75, -7.244129740847773] },  
         ];
 
         function initCrimild(canvasId) {
@@ -31,8 +70,12 @@
                 var assetManager = crimild.utils.assetManager();
                 assetManager.queueImage("assets/floor_tile.png");
                 assetManager.queueImage("assets/blob.png");
+                assetManager.queueImage("assets/scv.png");
+                assetManager.queueImage("assets/snow.png");
                 assetManager.loadAll(function() {
-                    var ballGroup = crimild.core.groupNode();
+                    var ballGroup = crimild.core.groupNode({
+                        name: "balls",
+                    });
 
                     for (var b in balls) {
                         var ballData = balls[b];
@@ -42,17 +85,27 @@
                                 crimild.primitives.spherePrimitive({
                                     type: crimild.core.primitive.types.TRIANGLES,
                                     vertexFormat: crimild.core.vertexFormat({normals: 3}),
-                                    radius: 1,
+                                    radius: 0.7,
                                 })
                             ],
                             local: crimild.math.transformation({
                                 translate: ballData.position,
-                            })
+                            }),
+                            components: [
+                                crimild.rendering.renderComponent({
+                                    effects: [
+                                        crimild.rendering.effect({
+                                            diffuse: ballData.diffuse || [1, 1, 1],
+                                            cullState: crimild.rendering.cullState({ enabled: false }),
+                                        })
+                                    ]
+                                })
+                            ]
                         }));
                     };
 
                     var mainCameraDefaultOrientation = crimild.math.transformation({
-                        translate: vec3.create([-10, 10, 45.0]),
+                        translate: vec3.create([-5, 10, 45.0]),
                         rotate: quat4.fromAngleAxis(-0.2, [1, 0, 0]),
                     });
 
@@ -73,6 +126,65 @@
                                         nodes: [
                                             crimild.core.geometryNode({
                                                 primitives: [
+                                                    crimild.core.primitive({
+                                                        type: crimild.core.primitive.types.TRIANGLES,
+                                                        vertexBuffer: crimild.core.vertexBufferObject({
+                                                            vertexFormat: crimild.core.vertexFormat({
+                                                                positions: 3,
+                                                                normals: 3,
+                                                                textureCoords: 2,
+                                                            }),
+                                                            vertexCount: 4,
+                                                            data: new Float32Array([
+                                                                -2.0, 2.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                                                -2.0, -2.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                                                                2.0, -2.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+                                                                2.0, 2.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+                                                            ]),
+                                                        }),
+                                                        indexBuffer: crimild.core.indexBufferObject({
+                                                            indexCount: 6,
+                                                            data: new Uint16Array([
+                                                                0, 1, 2,
+                                                                0, 2, 3,
+                                                            ]),
+                                                        })
+                                                    })
+                                                ],
+                                                components: [
+                                                    crimild.rendering.renderComponent({
+                                                        effects: [
+                                                            crimild.rendering.effect({
+                                                                cullState: crimild.rendering.cullState({ enabled: false }),
+                                                                alphaState: crimild.rendering.alphaState({ enabled: true }),
+                                                                diffuse: [0.5, 0.5, 0.5],
+                                                                shaderProgram: crimild.rendering.shaderProgram({
+                                                                    vertexShader: crimild.rendering.shader({
+                                                                        content: texture_vs
+                                                                    }),
+                                                                    fragmentShader: crimild.rendering.shader({
+                                                                        content: texture_fs
+                                                                    }),
+                                                                }),
+                                                                textures: [
+                                                                    crimild.rendering.texture({
+                                                                        image: assetManager.getImage("assets/scv.png"),
+                                                                    })
+                                                                ]
+                                                            })
+                                                        ]
+                                                    }),
+                                                    crimild.components.rotationComponent({
+                                                        angle: 0.025,
+                                                        axis: [0, 0, -1],
+                                                    })
+                                                ],
+                                                local: crimild.math.transformation({
+                                                    translate: [0, 13, 0.1],
+                                                })
+                                            }),
+                                            crimild.core.geometryNode({
+                                                primitives: [
                                                     crimild.primitives.spiralPrimitive({
                                                         type: crimild.core.primitive.types.TRIANGLES,
                                                         vertexFormat: crimild.core.vertexFormat({normals: 3}),
@@ -82,18 +194,33 @@
                                                         upperBound: vec3.createFrom(12.0 * Math.PI, 1.0),
                                                     }),
                                                 ],
-                                            }),
-                                            ballGroup,
-                                        ],
-                                        components: [
-                                            crimild.rendering.renderComponent({
-                                                effects: [
-                                                    crimild.rendering.effect({
-                                                        cullState: crimild.rendering.cullState({ enabled: false }),
+                                                components: [
+                                                    crimild.rendering.renderComponent({
+                                                        effects: [
+                                                            crimild.rendering.effect({
+                                                                cullState: crimild.rendering.cullState({ enabled: false }),
+                                                            })
+                                                        ]
                                                     })
                                                 ]
-                                            })
-                                        ]
+                                            }),
+                                            ballGroup,
+                                            crimild.particles.particleSystem({
+                                                particleCount: 500,
+                                                duration: 5,
+                                                loop: true,
+                                                gravity: [-5, -9.8, 0],
+                                                velocity: [4, 10, 0],
+                                                spread: [20, 0, 20],
+                                                particleSize: 20.0,
+                                                texture: crimild.rendering.texture({
+                                                    image: assetManager.getImage("assets/snow.png")
+                                                }),
+                                                local: crimild.math.transformation({
+                                                    translate: [0, 30, 0]
+                                                })
+                                            }),
+                                        ],
                                     }),
                                     crimild.core.groupNode({
                                         nodes: [
@@ -159,10 +286,10 @@
                                                             }),
                                                             vertexCount: 4,
                                                             data: new Float32Array([
-                                                                -10.0, 0.0, -10.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-                                                                -10.0, 0.0, 10.0, 0.0, 1.0, 0.0, 0.0, 1.0,
-                                                                10.0, 0.0, 10.0, 0.0, 1.0, 0.0, 1.0, 1.0,
-                                                                10.0, 0.0, -10.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+                                                                -20.0, 0.0, -10.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                                                -20.0, 0.0, 10.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                                                                20.0, 0.0, 10.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+                                                                20.0, 0.0, -10.0, 0.0, 1.0, 0.0, 1.0, 0.0,
                                                             ]),
                                                         }),
                                                         indexBuffer: crimild.core.indexBufferObject({
@@ -284,7 +411,7 @@
                                         quat4.fromAngleAxis(0, [0, 1, 0]),
                                         quat4.create(mainCameraDefaultOrientation.rotate)
                                     ],
-                                    speed: 0.025,
+                                    speed: 0.005,
                                 }));
                             });
                         }
