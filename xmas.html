@@ -20,7 +20,10 @@
         ];
 
         function initCrimild(canvasId) {
-            require(["crimild", "text!../shaders/texture.vert", "text!../shaders/texture.frag"], function(crimild, texture_vs, texture_fs) {
+            require([
+                "crimild", 
+                "text!../shaders/texture.vert", "text!../shaders/texture.frag"
+            ], function(crimild, texture_vs, texture_fs) {
                 var canvas = document.getElementById(canvasId);
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -62,7 +65,7 @@
                         }),
                     });
 
-                    var offscreenScene = crimild.core.groupNode({
+                    var scene = crimild.core.groupNode({
                         nodes: [
                             crimild.core.groupNode({
                                 nodes: [
@@ -313,9 +316,7 @@
                                                 ],
                                                 speed: 0.005,
                                                 callback: function() {
-                                                    $('#overlay').fadeIn(1000,function(){
-
-                                                    });             
+                                                    $('#overlay').fadeIn(1000);             
                                                 }
                                             }));
 
@@ -327,12 +328,8 @@
                         }
                     };
 
-                    crimild.simulation
-                        .run({canvas: canvas, scenes: [offscreenScene]})
+                    crimild.simulation.run({canvas: canvas, scenes: [scene]})
                         .getRenderer().setClearColor([0, 0, 0, 0]);
-
-                    $('#loading').hide();
-                    $('#wrapper').show();
                 });
             });
         }
@@ -367,13 +364,7 @@
 </head>
 
 <body onload="initCrimild('webGLCanvas');" style="background-image: url('assets/xmas.png'); background-repeat: no-repeat; background-color: white;">
-    <div id="loading">
-        <div class="hud">
-            <p>loading, please wait...</p>
-        </div>
-    </div>
-
-    <div id="wrapper" style="display: none;">
+    <div id="wrapper">
         <div id="overlay">
         </div>
         <canvas id="webGLCanvas">
