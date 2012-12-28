@@ -8,7 +8,7 @@
     <script type="text/javascript">
 
         var balls = [
-            { position: [0, 13, 7], diffuse: [1, 0, 0], url: "http://www.scvsoft.com", isStart: true }, 
+            { position: [-0.25, 12.7, 7], diffuse: [1, 0, 0], url: "http://www.scvsoft.com", isStart: true }, 
             { position: [0.1970764764970429, 10.75, 0.5931153870972414] }, 
             { position: [-1.6154607236308878, 8.75, -0.1758170936114261], diffuse: [1, 0, 0], url:'http://news.happening.scvsoft.com/' },  
             { position: [-0.9479359160668097, 7.75, -1.90185238623574] },  
@@ -76,7 +76,7 @@
                 }, 1000);
             }
             else {
-                $('#loading').hide();
+                $('#loading').fadeOut(500);
                 $('#wrapper').fadeIn(1000);
                 initCrimild();
             }
@@ -634,7 +634,7 @@
         }
 
         #happy2013 {
-            line-height: 95px;
+            line-height: 114px;
         }
 
         #codeHappening {
@@ -673,19 +673,38 @@
             position: absolute;
             width: 100%;
             display: none;
+            clear: both;
+            margin-top: -32px;
         }
 
         #loading {
             position: fixed;
-            top: 50%;
+            top: 40%;
             width: 100%;
             text-align: center;
+        }
+
+        #scvLoading {
+            -webkit-animation: rotation 2s infinite linear;
+            -moz-animation: rotation 2s infinite linear;
+        }
+
+        @-webkit-keyframes rotation {
+            from {-webkit-transform: rotate(0deg);}
+            to   {-webkit-transform: rotate(359deg);}
+        }
+
+        @-moz-keyframes rotation {
+            from {-moz-transform: rotate(0deg);}
+            to   {-moz-transform: rotate(359deg);}
         }
     </style>
 </head>
 
 <body onload="preloadBall(0);">
-    <div id="loading"><img src="assets/spinner.gif"></img></div>
+    <div id="loading">
+        <img id="scvLoading" src="assets/scv.png"></img>
+    </div>
     
     <div class="header">
         <span id="scvsoft"><img src="assets/scv_soft.png"></img></span>
