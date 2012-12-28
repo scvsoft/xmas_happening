@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>crimildjs</title>
+    <title>Holidays Code Happening</title>
     <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script data-main="lib/crimild" src="lib/require.js"></script>
     <link rel="stylesheet" type="text/css" href="css/example.css">
@@ -9,14 +9,14 @@
 
         var balls = [
             { position: [0.1970764764970429, 10.75, 0.5931153870972414] }, 
-            { position: [-1.6154607236308878, 8.75, -0.1758170936114261], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-1.6154607236308878, 8.75, -0.1758170936114261], diffuse: [1, 0, 0], url:'http://news.happening.scvsoft.com/' },  
             { position: [-0.9479359160668097, 7.75, -1.90185238623574] },  
             { position: [1.344224377759832, 6.75, -2.254703045244804] },  
             { position: [3.1232794319515604, 5.75, -0.10368505171111506] },  
             { position: [2.0587251281715186, 4.75, 2.9836681864167076] },  
             { position: [-1.5912102419904148, 3.75, 3.8057423672372783] },  
             { position: [-3.4161998657751527, 3.25, 2.733167297674592] },  
-            { position: [-4.554538927286372, 2.5, 0.8042388698845052], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-4.554538927286372, 2.5, 0.8042388698845052], diffuse: [1, 0, 0], url:'http://happening.scvsoft.com:3000/' },  
             { position: [-4.619451544392717, 3.25, -1.557656068908584] },  
             { position: [-3.476768483678457, 2.25, -3.7653294558245767] },  
             { position: [-1.3067346462655363, 1.25, -5.213738540073647] },  
@@ -25,7 +25,7 @@
             { position: [5.8210214382895, -0.25, -1.9056060492594047] },  
             { position: [6.267819974928398, -0.05, 1.1640694832734793] },  
             { position: [5.136266239606533, -0.25, 4.184422793633331] },  
-            { position: [2.5957701762938914, -0.75, 6.366129294309312], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [2.5957701762938914, -0.75, 6.366129294309312], diffuse: [1, 0, 0], url:'http://countdown.happening.scvsoft.com/' },  
             { position: [-0.8022307725160778, -0.25, 7.079692845570934] },  
             { position: [-4.24200610948272, -1.15, 6.03291050547837] },  
             { position: [-6.839280667979953, -1.75, 3.371181535396113] },  
@@ -36,14 +36,14 @@
             { position: [4.029177603783286, -5.75, -7.907676829333074] },  
             { position: [7.533474796620869, -6.25, -5.149017623651929] },  
             { position: [9.328578759716052, -6.75, -0.9317957521767016] },  
-            { position: [8.86354671982693, -7.25, 3.752088024746394], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [8.86354671982693, -7.25, 3.752088024746394], diffuse: [1, 0, 0], url:'http://fireworks.happening.scvsoft.com/' },  
             { position: [6.134962727761535, -6.75, 7.738078400286259] },  
             { position: [4.080820618133919, -7.15, 9.129452507276277] },  
             { position: [1.7164862802010419, -7, 9.978441754596837] },  
-            { position: [-0.8155265646050357, -7.35, 10.217505391357692], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-0.8155265646050357, -7.35, 10.217505391357692] },  
             { position: [-3.358488827014559, -7.65, 9.816372945177784] },  
             { position: [-5.751157232354818, -8.25, 8.78488420462859] },  
-            { position: [-7.8379945156412445, -8.5, 7.1733163162360105], diffuse: [1, 0, 0], url:'http://scvsoft.github.com/code_happening_2012/' },  
+            { position: [-7.8379945156412445, -8.5, 7.1733163162360105], diffuse: [1, 0, 0], url:'http://news.happening.scvsoft.com/' },  
             { position: [-9.479261071069235, -9.35, 5.070119283262609] },  
             { position: [-10.56032442432911, -9.75, 2.5971470988217122] },  
             { position: [-10.999569090341009, -10, -0.09736440219444265] },  
@@ -57,6 +57,8 @@
             { position: [7.699811274637129, -13.35, -9.36635101493484] },  
             { position: [9.878516300425119, -12.75, -7.244129740847773] },  
         ];
+
+        var activeBalls = [];
 
         function initCrimild(canvasId) {
             require([
@@ -72,20 +74,27 @@
                 assetManager.queueImage("assets/blob.png");
                 assetManager.queueImage("assets/scv.png");
                 assetManager.queueImage("assets/snow.png");
+                assetManager.queueImage("assets/mountains.png");
                 assetManager.loadAll(function() {
                     var ballGroup = crimild.core.groupNode({
                         name: "balls",
                     });
 
+                    var zoomedIn = false;
+
                     for (var b in balls) {
                         var ballData = balls[b];
+
+                        if (ballData.url) {
+                            activeBalls.push(ballData);
+                        }
 
                         ballGroup.attachNode(crimild.core.geometryNode({
                             primitives: [
                                 crimild.primitives.spherePrimitive({
                                     type: crimild.core.primitive.types.TRIANGLES,
                                     vertexFormat: crimild.core.vertexFormat({normals: 3}),
-                                    radius: 0.7,
+                                    radius: (ballData.url ? 1.0 : 0.7),
                                 })
                             ],
                             local: crimild.math.transformation({
@@ -99,18 +108,50 @@
                                             cullState: crimild.rendering.cullState({ enabled: false }),
                                         })
                                     ]
-                                })
+                                }),
+                                (function() {
+                                    if (ballData.url) {
+                                        var cmp = crimild.core.nodeComponent({
+                                            name: "behavior"
+                                        });
+
+                                        var _initialX = 0;
+                                        var _t = Math.random();
+
+                                        cmp.onAttach = function() {
+                                            _initialX = cmp.node.local.translate[0];
+                                        };
+
+                                        cmp.update = function(appTime, deltaTime) {
+                                            _t += deltaTime / 1000;
+
+                                            if (!zoomedIn) {
+                                                if (_t < 1.5) {
+                                                    cmp.node.local.translate[0] = _initialX + 0.05 * Math.sin(20 * _t);
+                                                    cmp.node.perform(crimild.core.worldStateUpdate());
+                                                }
+                                                else if (_t > 5.0) {
+                                                    _t = Math.random();
+                                                }
+                                            }
+                                        };
+
+                                        return cmp;
+                                    }
+                                    else {
+                                        return null;
+                                    }
+                                })()
                             ]
                         }));
                     };
 
                     var mainCameraDefaultOrientation = crimild.math.transformation({
-                        translate: vec3.create([-5, 10, 45.0]),
+                        translate: vec3.create([-5, 10, 50.0]),
                         rotate: quat4.fromAngleAxis(-0.2, [1, 0, 0]),
                     });
 
                     var mainCamera = crimild.rendering.cameraNode({
-                        viewport: [0.0, 0, 1, (canvas.height - 80) / canvas.height],
                         aspectRatio: canvas.width / canvas.height,
                         local: crimild.math.transformation({
                             translate: mainCameraDefaultOrientation.translate,
@@ -120,6 +161,67 @@
 
                     var scene = crimild.core.groupNode({
                         nodes: [
+                            crimild.core.geometryNode({
+                                primitives: [
+                                    crimild.core.primitive({
+                                        type: crimild.core.primitive.types.TRIANGLES,
+                                        vertexBuffer: crimild.core.vertexBufferObject({
+                                            vertexFormat: crimild.core.vertexFormat({
+                                                positions: 3,
+                                                normals: 3,
+                                                textureCoords: 2,
+                                            }),
+                                            vertexCount: 4,
+                                            data: new Float32Array([
+                                                -1000.0, 250.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.1,
+                                                -1000.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                                                0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+                                                0.0, 250.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.1,
+                                                0.0, 250.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.1,
+                                                0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+                                                1000.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+                                                1000.0, 250.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.1,
+                                            ]),
+                                        }),
+                                        indexBuffer: crimild.core.indexBufferObject({
+                                            indexCount: 12,
+                                            data: new Uint16Array([
+                                                0, 1, 2,
+                                                0, 2, 3,
+                                                4, 5, 6,
+                                                4, 6, 7,
+                                            ]),
+                                        })
+                                    })
+                                ],
+                                components: [
+                                    crimild.rendering.renderComponent({
+                                        effects: [
+                                            crimild.rendering.effect({
+                                                cullState: crimild.rendering.cullState({ enabled: false }),
+                                                alphaState: crimild.rendering.alphaState({ enabled: true }),
+                                                diffuse: [0.5, 0.5, 0.5],
+                                                shaderProgram: crimild.rendering.shaderProgram({
+                                                    vertexShader: crimild.rendering.shader({
+                                                        content: texture_vs
+                                                    }),
+                                                    fragmentShader: crimild.rendering.shader({
+                                                        content: texture_fs
+                                                    }),
+                                                }),
+                                                textures: [
+                                                    crimild.rendering.texture({
+                                                        image: assetManager.getImage("assets/mountains.png"),
+                                                    })
+                                                ]
+                                            })
+                                        ]
+                                    }),
+                                ],
+                                local: crimild.math.transformation({
+                                    translate: [0, -18, -900],
+                                })
+                            }),
                             crimild.core.groupNode({
                                 nodes: [
                                     crimild.core.groupNode({
@@ -357,7 +459,36 @@
                         }),
                     });
 
-                    var zoomedIn = false;
+                    canvas.onmousemove = function(ev) {
+                        var x = ev.layerX;
+                        var y = ev.layerY;
+                        var width = canvas.width;
+                        var height = canvas.height;
+
+                        if (!zoomedIn) {
+                            var origin = vec3.create();
+                            var direction = vec3.create();
+                            var ballPosition = vec3.create();
+
+                            if (mainCamera.get().getPickRay(x, y, width, height, origin, direction)) {
+                                var collisionFound = false;
+
+                                for (var b in activeBalls) {
+                                    var ball = activeBalls[b];
+                                    if (ball.url) {
+                                        ballGroup.world.applyToPoint(ball.position, ballPosition);
+                                        if (!collisionFound && crimild.math.testIntersectionSphereRay(ballPosition, 1.0, origin, direction)) {
+                                            collisionFound = true;
+                                            canvas.style.cursor = 'pointer';
+                                        }
+                                    }
+                                }
+                                if (!collisionFound) {
+                                    canvas.style.cursor = 'auto';
+                                }
+                            }
+                        }
+                    };
 
                     canvas.onmouseup = function(ev) {
                         var x = ev.layerX;
@@ -408,10 +539,10 @@
                                         vec3.create(mainCameraDefaultOrientation.translate)
                                     ],
                                     orientations: [
-                                        quat4.fromAngleAxis(0, [0, 1, 0]),
+                                        quat4.create(mainCamera.local.rotate),
                                         quat4.create(mainCameraDefaultOrientation.rotate)
                                     ],
-                                    speed: 0.005,
+                                    speed: 0.01,
                                 }));
                             });
                         }
@@ -423,8 +554,8 @@
                             if (mainCamera.get().getPickRay(x, y, width, height, origin, direction)) {
                                 var collisionFound = false;
 
-                                for (var b in balls) {
-                                    var ball = balls[b];
+                                for (var b in activeBalls) {
+                                    var ball = activeBalls[b];
                                     if (ball.url) {
                                         ballGroup.world.applyToPoint(ball.position, ballPosition);
                                         if (!collisionFound && crimild.math.testIntersectionSphereRay(ballPosition, 1.0, origin, direction)) {
@@ -435,10 +566,10 @@
                                                 points: [
                                                     vec3.create(mainCamera.local.translate), 
                                                     [ball.position[0], ball.position[1], mainCameraDefaultOrientation.translate[2]],
-                                                    vec3.create(ball.position),
+                                                    vec3.create([-0.05 + ball.position[0], ball.position[1], ball.position[2] + 1.6]),
                                                 ],
                                                 orientations: [
-                                                    quat4.create(mainCameraDefaultOrientation.rotate),
+                                                    quat4.create(mainCamera.local.rotate),
                                                     quat4.fromAngleAxis(0, [0, 1, 0]),
                                                 ],
                                                 speed: 0.005,
@@ -462,6 +593,22 @@
         }
     </script>
     <style type="text/css">
+        body {
+            background-image: url("assets/background.png");
+            background-repeat: repeat-x;
+            background-color: white;
+        }
+
+        #scvsoft {
+            left: 100px;
+            padding-left: 40px;
+        }
+
+        #codeHappening {
+            float: right;
+            padding-right: 40px;
+        }
+
         #overlay {
             margin: auto;
             text-align: center;
@@ -473,7 +620,7 @@
             width: 90%;
             z-index: 10000;
             position: absolute;
-            top: 100px;
+            top: 5%;
             left: 5%;
             display: none;
         }
@@ -487,10 +634,16 @@
             width: 100%;
             height: 100%;
         }
+
+        #wrapper {
+            position: absolute;
+        }
     </style>
 </head>
 
-<body onload="initCrimild('webGLCanvas');" style="background-image: url('assets/xmas.png'); background-repeat: no-repeat; background-color: white;">
+<body onload="initCrimild('webGLCanvas');">
+    <span id="scvsoft"><img src="assets/scv_soft.png"></img></span>
+    <span id="codeHappening"><img src="assets/code_happening.png"></img></span>
     <div id="wrapper">
         <div id="overlay">
         </div>
